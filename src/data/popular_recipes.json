@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "title": "Banana Pancakes",
+    "description": "In a bowl, mash the banana with a fork until it resembles a thick purée...",
+    "thumb": "https://placehold.co/97x85"
+  },
+  {
+    "id": "2",
+    "title": "Squash linguine",
+    "description": "Pasta is a type of food typically made from an unleavened dough of wheat flour...",
+    "thumb": "https://placehold.co/97x85"
+  },
+  {
+    "id": "3",
+    "title": "Baked salmon",
+    "description": "Cook in boiling salted water for 10 mins...",
+    "thumb": "https://placehold.co/97x85"
+  },
+  {
+    "id": "4",
+    "title": "Sugar Pie",
+    "description": "Sugar pie is a dessert in northern French and Belgiancuisine, where it is called tarte...",
+    "thumb": "https://placehold.co/97x85"
+  }
+]
