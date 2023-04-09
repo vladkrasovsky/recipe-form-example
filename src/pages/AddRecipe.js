@@ -11,13 +11,13 @@ export default function addRecipe() {
         </div>
 
         <div className="row g-5">
-          <div className="col-md-5 col-lg-4 order-md-last">
-            <RecipeSidebar />
-          </div>
-
           <div className="col-md-7 col-lg-8">
             <h2 className="mb-3">Add recipe</h2>
             <RecipeForm />
+          </div>
+
+          <div className="col-md-5 col-lg-4">
+            <RecipeSidebar />
           </div>
         </div>
       </main>
