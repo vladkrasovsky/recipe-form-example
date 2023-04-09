@@ -1,28 +1,28 @@
 import { useState } from "react";
+import { nanoid } from "nanoid";
 import API from "../../services/api";
 import RecipeIngredients from "../RecipeIngrediets";
 import cats from "../../data/cats.json";
 
 const IMG_PREVIEW = "https://placehold.co/357x344?text=Upload+image";
+const initialIgredient = {
+  id: "",
+  amount: "",
+  measure: "",
+};
 const initialRecipe = {
   title: "",
   description: "",
   category: "",
   time: "",
-  ingredients: [
-    {
-      id: Date.now(),
-      amount: "",
-      measure: "",
-    },
-  ],
+  ingredients: [{ ...initialIgredient, id: nanoid() }],
   isPublic: false,
   instructions: "",
 };
 
 const RecipeForm = () => {
   const [preview, setPreview] = useState(IMG_PREVIEW);
-  const [recipe, setRecipe] = useState(initialRecipe);
+  const [recipe, setRecipe] = useState({ ...initialRecipe });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (e) => {
@@ -38,17 +38,18 @@ const RecipeForm = () => {
   };
 
   const handleIngredientsChange = (ingredients) => {
-    let _recipe = { ...recipe, ingredients };
-    setRecipe(_recipe);
+    setRecipe({ ...recipe, ingredients });
   };
 
-  const resetForm = (form) => {
-    form.reset();
-    setRecipe({
-      ...initialRecipe,
-      ingredients: [...initialRecipe.ingredients],
-    });
-    setPreview(IMG_PREVIEW);
+  const handleAddIngredient = () => {
+    const _ingredients = [...recipe.ingredients];
+    _ingredients.push({ ...initialIgredient, id: nanoid() });
+    handleIngredientsChange(_ingredients);
+  };
+
+  const handleRemoveIngredient = (id) => {
+    const _ingredients = recipe.ingredients.filter((item) => item.id !== id);
+    handleIngredientsChange(_ingredients);
   };
 
   /* 
@@ -63,7 +64,7 @@ const RecipeForm = () => {
   }; 
   */
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // some validations !isValid(recipe)...
     const formData = new FormData();
@@ -73,16 +74,29 @@ const RecipeForm = () => {
     }
     formData.append("thumb", file);
     formData.append("jsonData", JSON.stringify(recipe));
+    sendForm(e.target, formData);
+  };
+
+  const sendForm = async (form, formData) => {
     setIsSubmitting(true);
     try {
       const { data } = await API.post("/recipes", formData);
-      resetForm(e.target);
+      resetForm(form);
       console.log(data);
     } catch (err) {
       alert(err.response.data.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = (form) => {
+    form.reset();
+    setRecipe({
+      ...initialRecipe,
+      ingredients: [{ ...initialIgredient, id: nanoid() }],
+    });
+    setPreview(IMG_PREVIEW);
   };
 
   return (
@@ -190,7 +204,9 @@ const RecipeForm = () => {
         </h4>
         <RecipeIngredients
           items={recipe.ingredients}
-          setItems={handleIngredientsChange}
+          updateItems={handleIngredientsChange}
+          addItem={handleAddIngredient}
+          removeItem={handleRemoveIngredient}
         />
       </div>
 

@@ -1,30 +1,11 @@
 import ingredients from "../../data/ingredients.json";
 
-const RecipeIngredients = ({ items, setItems }) => {
-  const handleAddClick = (e) => {
-    e.preventDefault();
-    const _items = [...items];
-    _items.push({
-      id: Date.now(),
-      amount: "",
-      measure: "",
-    });
-    setItems(_items);
-  };
-
-  const handleRemoveClick = (id) => {
-    const _items = items.filter((item) => item.id !== id);
-    setItems([..._items]);
-  };
-
-  const handleFieldChange = ({ target }, id) => {
+const RecipeIngredients = ({ items, updateItems, addItem, removeItem }) => {
+  const handleFieldChange = ({ target: { value, dataset } }, id) => {
     const _items = [...items];
     const index = _items.findIndex((item) => item.id === id);
-    const { value } = target;
-    const { name } = target.dataset;
-    _items[index].id = name === "id" ? value : id;
-    _items[index][name] = value;
-    setItems(_items);
+    _items[index][dataset.name] = value;
+    updateItems([..._items]);
   };
 
   return (
@@ -42,9 +23,13 @@ const RecipeIngredients = ({ items, setItems }) => {
                 onChange={(e) => handleFieldChange(e, item.id)}
               >
                 <option value="">Choose...</option>
-                {ingredients.map(({ _id: id, ttl }) => {
+                {ingredients.map(({ _id, ttl }) => {
                   return (
-                    <option key={id} value={id}>
+                    <option
+                      key={_id}
+                      value={_id}
+                      disabled={items.some(({ id }) => id === _id)}
+                    >
                       {ttl}
                     </option>
                   );
@@ -93,7 +78,7 @@ const RecipeIngredients = ({ items, setItems }) => {
                 <button
                   type="button"
                   className="btn btn-outline-danger"
-                  onClick={() => handleRemoveClick(item.id)}
+                  onClick={() => removeItem(item.id)}
                 >
                   &times;
                 </button>
@@ -108,7 +93,7 @@ const RecipeIngredients = ({ items, setItems }) => {
           <button
             type="button"
             className="btn btn-success btn-sm mt-4"
-            onClick={handleAddClick}
+            onClick={addItem}
           >
             Add ingredient
           </button>
