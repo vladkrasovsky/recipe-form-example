@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import RecipeUpload from "../RecipeUpload";
 import RecipeIngredients from "../RecipeIngrediets";
 
 const RecipeForm = () => {
@@ -8,6 +9,7 @@ const RecipeForm = () => {
     description: "",
     category: "",
     time: "",
+    thumb: "",
     ingredients: [
       {
         id: Date.now(),
@@ -19,6 +21,12 @@ const RecipeForm = () => {
     isPublic: false,
     instructions: "",
   });
+
+  const handleImageChange = (fileUrl) => {
+    if (!fileUrl) return;
+    let _formData = { ...formData, thumb: fileUrl };
+    setFormData(_formData);
+  };
 
   const handleFieldChange = (e) => {
     const { id, value } = e.target;
@@ -55,7 +63,10 @@ const RecipeForm = () => {
     <form className="needs-validation" noValidate="" onSubmit={handleSubmit}>
       <div className="row g-5">
         <div className="col-md-5">
-          <img src="https://placehold.co/357x344" alt="" />
+          <RecipeUpload
+            image={formData.thumb}
+            handleImageChange={handleImageChange}
+          />
         </div>
 
         {/* Basic fields */}
