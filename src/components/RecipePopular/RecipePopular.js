@@ -14,7 +14,7 @@ const RecipePopular = () => {
               className="list-group-item d-flex justify-content-between lh-sm"
             >
               <img src={thumb} alt={title} className="me-3" />
-              <div>
+              <div className="flex-grow-1">
                 <h6 className="my-0">{title}</h6>
                 <small className="text-muted">{description}</small>
               </div>

@@ -1,10 +1,11 @@
+import ingredients from "../../data/ingredients.json";
+
 const RecipeIngredients = ({ items, setItems }) => {
   const handleAddClick = (e) => {
     e.preventDefault();
     const _items = [...items];
     _items.push({
       id: Date.now(),
-      name: "",
       amount: "",
       measure: "",
     });
@@ -23,6 +24,7 @@ const RecipeIngredients = ({ items, setItems }) => {
       value,
       dataset: { name },
     } = event.target;
+    _items[index].id = name === "id" ? value : id;
     _items[index][name] = value;
     setItems(_items);
   };
@@ -32,27 +34,30 @@ const RecipeIngredients = ({ items, setItems }) => {
       {items.map((item) => {
         return (
           <div key={item.id} className="row gx-3 gy-2 align-items-end">
-            <div className="col-md-4">
+            <div className="col-md-5 col-lg-4">
               <label className="form-label">Name</label>
               <select
                 className="form-select"
-                data-name="name"
+                data-name="id"
                 required=""
-                value={item.name}
+                value={item.id}
                 onChange={(e) => handleFieldChange(e, item.id)}
               >
                 <option value="">Choose...</option>
-                <option>Avocado</option>
-                <option>Chicken</option>
-                <option>Cherry</option>
-                <option>Cucumber</option>
+                {ingredients.map(({ _id: id, ttl }) => {
+                  return (
+                    <option key={id} value={id}>
+                      {ttl}
+                    </option>
+                  );
+                })}
               </select>
               <div className="invalid-feedback">
                 Please select a valid ingredient.
               </div>
             </div>
 
-            <div className="col-md-2">
+            <div className="col-md-3 col-lg-2">
               <label className="form-label">Amount</label>
               <input
                 type="number"
@@ -68,7 +73,7 @@ const RecipeIngredients = ({ items, setItems }) => {
               <div className="invalid-feedback">Amount is required.</div>
             </div>
 
-            <div className="col-md-3">
+            <div className="col-md-4 col-lg-3">
               <label className="form-label">Measure</label>
               <select
                 className="form-select"

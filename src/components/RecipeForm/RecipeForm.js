@@ -1,76 +1,102 @@
 import { useState } from "react";
-
-import RecipeUpload from "../RecipeUpload";
+import API from "../../services/api";
 import RecipeIngredients from "../RecipeIngrediets";
+import cats from "../../data/cats.json";
+
+const IMG_PREVIEW = "https://placehold.co/357x344?text=Upload+image";
+const initialRecipe = {
+  title: "",
+  description: "",
+  category: "",
+  time: "",
+  ingredients: [
+    {
+      id: Date.now(),
+      amount: "",
+      measure: "",
+    },
+  ],
+  isPublic: false,
+  instructions: "",
+};
 
 const RecipeForm = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    time: "",
-    thumb: "",
-    ingredients: [
-      {
-        id: Date.now(),
-        name: "",
-        amount: "",
-        measure: "",
-      },
-    ],
-    isPublic: false,
-    instructions: "",
-  });
+  const [preview, setPreview] = useState(IMG_PREVIEW);
+  const [recipe, setRecipe] = useState(initialRecipe);
 
-  const handleImageChange = (fileUrl) => {
-    if (!fileUrl) return;
-    let _formData = { ...formData, thumb: fileUrl };
-    setFormData(_formData);
+  const handleFileChange = (e) => {
+    const [_file] = e.target.files;
+    setPreview(_file ? URL.createObjectURL(_file) : IMG_PREVIEW);
   };
 
   const handleFieldChange = (e) => {
     const { id, value } = e.target;
-    let _formData = { ...formData };
-    _formData[id] = id === "isPublic" ? !_formData.isPublic : value;
-    setFormData(_formData);
+    let _recipe = { ...recipe };
+    _recipe[id] = id === "isPublic" ? !_recipe.isPublic : value;
+    setRecipe(_recipe);
   };
 
   const handleIngredientsChange = (ingredients) => {
-    let _formData = { ...formData, ingredients };
-    setFormData(_formData);
+    let _recipe = { ...recipe, ingredients };
+    setRecipe(_recipe);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // simple validation..
-    const { title, description, category, time, ingredients, instructions } =
-      formData;
-    if (
-      !title ||
-      !description ||
-      !category ||
-      !time ||
-      ingredients.length === 0 ||
-      !instructions
-    ) {
-      alert("Please, provide all required fields");
+  const resetForm = () => {
+    setRecipe({ ...initialRecipe });
+    setPreview(IMG_PREVIEW);
+  };
+
+  /* 
+  const isValid = (recipe) => {
+    for (const [key, value] of Object.entries(recipe)) {
+      if (!value) {
+        alert(`${key} is required`);
+        return false;
+      }
     }
-    console.log(formData);
-    console.table(formData.ingredients);
+    return true;
+  }; 
+  */
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // some validations !isValid(recipe)...
+    const formData = new FormData();
+    const [file] = e.target.thumb.files;
+    if (!file) {
+      return alert("Select a recipe image!");
+    }
+    formData.append("thumb", file);
+    formData.append("jsonData", JSON.stringify(recipe));
+    try {
+      const { data } = await API.post("/recipes", formData);
+      console.log(data);
+      resetForm();
+    } catch (err) {
+      alert(err.response.data.message);
+    }
   };
 
   return (
     <form className="needs-validation" noValidate="" onSubmit={handleSubmit}>
       <div className="row g-5">
-        <div className="col-md-5">
-          <RecipeUpload
-            image={formData.thumb}
-            handleImageChange={handleImageChange}
-          />
+        {/* Image upload */}
+        <div className="col-lg-6 col-xl-5">
+          <label className="file-label" htmlFor="thumb">
+            <img src={preview} alt="" width={357} height={344} />
+            <input
+              className="visually-hidden"
+              type="file"
+              id="thumb"
+              name="thumb"
+              onChange={handleFileChange}
+              accept="image/png, image/jpg, image/jpeg"
+            />
+          </label>
         </div>
 
         {/* Basic fields */}
-        <div className="col-md-5">
+        <div className="col-lg-6 col-xl-5">
           <div className="form-group mb-3">
             <label htmlFor="title" className="form-label">
               Title
@@ -81,7 +107,7 @@ const RecipeForm = () => {
               id="title"
               placeholder=""
               required=""
-              value={formData.title}
+              value={recipe.title}
               onChange={handleFieldChange}
             />
             <div className="invalid-feedback">Please enter recipe title.</div>
@@ -97,7 +123,7 @@ const RecipeForm = () => {
               id="description"
               placeholder=""
               required=""
-              value={formData.description}
+              value={recipe.description}
               onChange={handleFieldChange}
             />
             <div className="invalid-feedback">
@@ -113,16 +139,17 @@ const RecipeForm = () => {
               className="form-select"
               id="category"
               required=""
-              value={formData.category}
+              value={recipe.category}
               onChange={handleFieldChange}
             >
               <option value="">Choose...</option>
-              <option>Beef</option>
-              <option>Breakfast</option>
-              <option>Dessert</option>
-              <option>Goat</option>
-              <option>Lamb</option>
-              <option>Miscellaneous</option>
+              {cats.map(({ _id: id, category }) => {
+                return (
+                  <option key={id} value={id}>
+                    {category}
+                  </option>
+                );
+              })}
             </select>
             <div className="invalid-feedback">
               Please select a valid category.
@@ -139,7 +166,7 @@ const RecipeForm = () => {
               id="time"
               placeholder="40 min"
               required=""
-              value={formData.time}
+              value={recipe.time}
               onChange={handleFieldChange}
             />
             <div className="invalid-feedback">Please enter recipe time.</div>
@@ -154,7 +181,7 @@ const RecipeForm = () => {
           <span className="text-primary">Ingredients</span>
         </h4>
         <RecipeIngredients
-          items={formData.ingredients}
+          items={recipe.ingredients}
           setItems={handleIngredientsChange}
         />
       </div>
@@ -168,7 +195,7 @@ const RecipeForm = () => {
           type="checkbox"
           className="form-check-input"
           id="isPublic"
-          value={formData.isPublic}
+          value={recipe.isPublic}
           onChange={handleFieldChange}
         />
         <label className="form-check-label" htmlFor="isPublic">
@@ -192,7 +219,7 @@ const RecipeForm = () => {
             placeholder="Enter recipe"
             required=""
             rows={6}
-            value={formData.instructions}
+            value={recipe.instructions}
             onChange={handleFieldChange}
           ></textarea>
           <div className="invalid-feedback">Recipe is required</div>
