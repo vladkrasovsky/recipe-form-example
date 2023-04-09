@@ -40,12 +40,11 @@ img {
 .file-label {
   position: relative;
   cursor: pointer;
-  /* width: 357px;
-  height: 344px; */
-
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+}
 
+.file-label img {
   background-color: #dddddd;
 }
