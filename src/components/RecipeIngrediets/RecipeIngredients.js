@@ -17,13 +17,11 @@ const RecipeIngredients = ({ items, setItems }) => {
     setItems([..._items]);
   };
 
-  const handleFieldChange = (event, id) => {
+  const handleFieldChange = ({ target }, id) => {
     const _items = [...items];
     const index = _items.findIndex((item) => item.id === id);
-    const {
-      value,
-      dataset: { name },
-    } = event.target;
+    const { value } = target;
+    const { name } = target.dataset;
     _items[index].id = name === "id" ? value : id;
     _items[index][name] = value;
     setItems(_items);

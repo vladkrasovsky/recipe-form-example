@@ -23,6 +23,7 @@ const initialRecipe = {
 const RecipeForm = () => {
   const [preview, setPreview] = useState(IMG_PREVIEW);
   const [recipe, setRecipe] = useState(initialRecipe);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (e) => {
     const [_file] = e.target.files;
@@ -41,8 +42,12 @@ const RecipeForm = () => {
     setRecipe(_recipe);
   };
 
-  const resetForm = () => {
-    setRecipe({ ...initialRecipe });
+  const resetForm = (form) => {
+    form.reset();
+    setRecipe({
+      ...initialRecipe,
+      ingredients: [...initialRecipe.ingredients],
+    });
     setPreview(IMG_PREVIEW);
   };
 
@@ -68,12 +73,15 @@ const RecipeForm = () => {
     }
     formData.append("thumb", file);
     formData.append("jsonData", JSON.stringify(recipe));
+    setIsSubmitting(true);
     try {
       const { data } = await API.post("/recipes", formData);
+      resetForm(e.target);
       console.log(data);
-      resetForm();
     } catch (err) {
       alert(err.response.data.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -226,7 +234,11 @@ const RecipeForm = () => {
         </div>
       </div>
 
-      <button className="btn btn-primary btn-lg my-4" type="submit">
+      <button
+        className="btn btn-primary btn-lg my-4"
+        type="submit"
+        disabled={isSubmitting}
+      >
         Add Recipe
       </button>
     </form>
